@@ -1,0 +1,3 @@
+[submodule "rendu/libft"]
+	path = rendu/libft
+	url = http://github.com/schiad/libft
