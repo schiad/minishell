@@ -147,8 +147,8 @@ int	main(int argc, char **argv, char **environ)
 			exit(0);
 		}
 		execute(buff, environ);
-		argc = 0;
-		argv = NULL;
+		argc++;
+		argv++;
 	}
 	return (0);
 }
