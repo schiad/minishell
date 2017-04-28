@@ -39,7 +39,7 @@ $(LIBFT):
 
 fclean:
 	@echo "Call LIBFT to fclean."
-	@make fclean --no-print-directory -C ./libft
+#	@make fclean --no-print-directory -C ./libft
 	@rm -f $(NAME)
 	@echo "ft_ls deleted :-(."
 

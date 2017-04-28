@@ -13,11 +13,12 @@ void	free_exec(char **exec)
 	int	i;
 
 	i = 0;
-	while (exec[i])
-	{
-		ft_memdel((void **)&exec[i]);
-		i++;
-	}
+	if (exec)
+		while (exec[i])
+		{
+			ft_memdel((void **)&exec[i]);
+			i++;
+		}
 	ft_memdel((void **)&exec);
 }
 
@@ -32,18 +33,19 @@ char	**find_path(char **env)
 	ret = NULL;
 	ok = 0;
 	i = 0;
-	while (!ok)
+	while (!ok && env[i])
 	{
 		tmp = ft_strsplit(env[i], '=');
 		if (!ft_strcmp(tmp[0], "PATH"))
+		{
 			ok = 1;
-		i++;
-		if (ok)
 			ret = ft_strsplit(tmp[1], ':');
+		}
 		j = 0;
 		while (tmp[j])
 			ft_memdel((void **)&tmp[++j]);
 		ft_memdel((void **)&tmp);
+		i++;
 	}
 	j = 0;
 	return (ret);
@@ -94,14 +96,14 @@ char	**parse_cmd(char *cmd, char **env)
 	while (path[i])
 	{
 		cmdargs = ft_strsplit(cmd, ' ');
-		pathcmd = path_join(path[i], cmdargs[0]);
-		if (!access(pathcmd, X_OK))
+		if (!access(pathcmd = path_join(path[i], cmdargs[0]), X_OK))
 		{
 			ft_memdel((void **)&cmdargs[0]);
 			cmdargs[0] = pathcmd;
 			return (cmdargs);
 		}
 		ft_memdel((void **)&pathcmd);
+		ft_memdel((void **)&path[i]);
 		i++;
 	}
 	return (NULL);
@@ -113,22 +115,20 @@ int	execute(char *cmd, char **env)
 	pid_t	father;
 
 	exec = parse_cmd(cmd, env);
-	father = fork();
-	if (exec)
+	if (exec != NULL)
 	{
+		father = fork();
 		if (father)
 		{
 			wait(0);
 		}
 		if (!father)
 		{
-			//		ft_putstr("\n***---execute cmd ...---***\n");
 			execve(exec[0], exec, env);
-			//		ft_putstr("***---execve error---***\n");
 			exit (0);
 		}
+		free_exec(exec);
 	}
-	free_exec(exec);
 	return (0);
 }
 
