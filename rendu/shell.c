@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   shell.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: schiad <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2017/04/28 11:36:29 by schiad            #+#    #+#             */
+/*   Updated: 2017/04/28 15:35:04 by schiad           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -5,8 +17,6 @@
 #include <libft.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
-#define BUFF_SIZE 1000
 
 void	free_exec(char **exec)
 {
@@ -27,7 +37,7 @@ char	**find_path(char **env)
 	int		ok;
 	char	**tmp;
 	char	**ret;
-	int 	i;
+	int		i;
 	int		j;
 
 	ret = NULL;
@@ -87,8 +97,6 @@ char	**parse_cmd(char *cmd, char **env)
 	char	*pathcmd;
 	int		i;
 
-	if (ft_strchr(cmd, '\n'))
-		cmd[(ft_strchr(cmd, '\n') - cmd)] = '\0';
 	if (ft_strlen(cmd) == 0)
 		return (NULL);
 	i = 0;
@@ -125,7 +133,7 @@ int	execute(char *cmd, char **env)
 		if (!father)
 		{
 			execve(exec[0], exec, env);
-			exit (0);
+			exit(0);
 		}
 		free_exec(exec);
 	}
@@ -134,19 +142,17 @@ int	execute(char *cmd, char **env)
 
 int	main(int argc, char **argv, char **environ)
 {
-	char	buff[BUFF_SIZE];
+	char	*cmd;
 
 	while (1)
 	{
-		ft_memset(buff, '\0', BUFF_SIZE);
 		ft_putstr(">$ ");
-		read(0, buff, BUFF_SIZE);
-		if (!*buff && !ft_strlen(buff))
+		if (!get_next_line(0, &cmd))
 		{
 			ft_putchar('\n');
 			exit(0);
 		}
-		execute(buff, environ);
+		execute(cmd, environ);
 		argc++;
 		argv++;
 	}
