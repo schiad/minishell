@@ -32,7 +32,7 @@ void	free_exec(char **exec)
 	ft_memdel((void **)&exec);
 }
 
-char	**find_path(char **env)
+char	**get_path(char **env)
 {
 	int		ok;
 	char	**tmp;
@@ -100,7 +100,7 @@ char	**parse_cmd(char *cmd, char **env)
 	if (ft_strlen(cmd) == 0)
 		return (NULL);
 	i = 0;
-	path = find_path(env);
+	path = get_path(env);
 	while (path[i])
 	{
 		cmdargs = ft_strsplit(cmd, ' ');
