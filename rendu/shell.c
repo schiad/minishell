@@ -6,7 +6,7 @@
 /*   By: schiad <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/04/28 11:36:29 by schiad            #+#    #+#             */
-/*   Updated: 2017/04/28 15:35:04 by schiad           ###   ########.fr       */
+/*   Updated: 2017/05/01 14:23:32 by schiad           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,25 +117,66 @@ char	**parse_cmd(char *cmd, char **env)
 	return (NULL);
 }
 
-int	execute(char *cmd, char **env)
+int		ft_cd(char **cmdargs)
+{
+	int	i;
+
+	if (chdir(cmdargs[1]))
+	{
+		ft_putstr_fd("chdir error\n", 2);
+	}
+	i = 0;
+	while (cmdargs[i])
+	{
+		ft_memdel((void **)&cmdargs[i]);
+		i++;
+	}
+	ft_memdel((void **)&cmdargs);
+	return (1);
+}
+
+int		ft_echo(char **cmdargs, char **env)
+{
+
+	return (1);
+}
+
+int		build_in(char *cmd, char **env)
+{
+	char	**cmdargs;
+
+	cmdargs = ft_strsplit(cmd, ' ');
+	if (!ft_strcmp(cmdargs[0], "cd"))
+		if (ft_cd(cmdargs))
+			return (0);
+	if (!ft_strcmp(cmdargs[0], "echo"))
+		if (ft_echo(cmdargs, env))
+			return (0);
+	return (1);
+}
+
+int		execute(char *cmd, char **env)
 {
 	char	**exec;
 	pid_t	father;
 
-	exec = parse_cmd(cmd, env);
-	if (exec != NULL)
+	if (build_in(cmd, env))
 	{
-		father = fork();
-		if (father)
+		exec = parse_cmd(cmd, env);
+		if (exec != NULL)
 		{
-			wait(0);
+			father = fork();
+			if (father)
+			{
+				wait(0);
+			}
+			if (!father)
+			{
+				execve(exec[0], exec, env);
+				exit(0);
+			}
+			free_exec(exec);
 		}
-		if (!father)
-		{
-			execve(exec[0], exec, env);
-			exit(0);
-		}
-		free_exec(exec);
 	}
 	return (0);
 }
