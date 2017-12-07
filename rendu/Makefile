@@ -24,6 +24,12 @@ LIBFT_DIR	= ./libft
 
 all: $(NAME)
 
+force: libft
+	@echo "Compiling ft_ls project"
+	@cd $(SRC_DIR)
+	@$(CC) $(SRC) -o $(NAME) -I$(LIBFT_INC) \
+	-L$(LIBFT_DIR) -lft
+
 $(NAME): libft
 	@echo "Compiling ft_ls project"
 	@cd $(SRC_DIR)
