@@ -32,6 +32,35 @@ void	free_exec(char **exec)
 	ft_memdel((void **)&exec);
 }
 
+char	**env_value(char **env, char *str)
+{
+	int		ok;
+	char	**tmp;
+	char	**ret;
+	int		i;
+	int		j;
+
+	ret = NULL;
+	ok = 0;
+	i = 0;
+	while (!ok && env[i])
+	{
+		tmp = ft_strsplit(env[i], '=');
+		if (!ft_strcmp(tmp[0], str))
+		{
+			ok = 1;
+			ret = ft_strsplit(tmp[1], ':');
+		}
+		j = 0;
+		while (tmp[j])
+			ft_memdel((void **)&tmp[++j]);
+		ft_memdel((void **)&tmp);
+		i++;
+	}
+	j = 0;
+	return (ret);
+}
+
 char	**get_path(char **env)
 {
 	int		ok;
@@ -90,7 +119,7 @@ char	*path_join(const char *str1, const char *str2)
 	return (result);
 }
 
-char	**parse_cmd(char *cmd, char **env)
+char	**path_cmd(char *cmd, char **env)
 {
 	char	**path;
 	char	**cmdargs;
@@ -117,7 +146,7 @@ char	**parse_cmd(char *cmd, char **env)
 	return (NULL);
 }
 
-int		ft_cd(char **cmdargs)
+int			ft_cd(char **cmdargs)
 {
 	int	i;
 
@@ -132,13 +161,31 @@ int		ft_cd(char **cmdargs)
 		i++;
 	}
 	ft_memdel((void **)&cmdargs);
-	return (1);
+	return (0);
 }
 
-int		ft_echo(char **cmdargs, char **env)
+int			ft_echo(char **cmdargs, char **env)
 {
+	long	x;
+	long	y;
 
-	return (1);
+	x = 1;
+	while (cmdargs[x])
+	{
+		y = 0;
+		while (cmdargs[x][y])
+		{
+			ft_putchar(cmdargs[x][y]);
+			y++;
+		}
+		if (cmdargs[x + 1])
+			ft_putchar(' ');
+		else
+			ft_putchar('\n');
+		x++;
+	}
+	env++;
+	return (0);
 }
 
 int		build_in(char *cmd, char **env)
@@ -147,10 +194,10 @@ int		build_in(char *cmd, char **env)
 
 	cmdargs = ft_strsplit(cmd, ' ');
 	if (!ft_strcmp(cmdargs[0], "cd"))
-		if (ft_cd(cmdargs))
+		if (!ft_cd(cmdargs))
 			return (0);
 	if (!ft_strcmp(cmdargs[0], "echo"))
-		if (ft_echo(cmdargs, env))
+		if (!ft_echo(cmdargs, env))
 			return (0);
 	return (1);
 }
@@ -162,7 +209,7 @@ int		execute(char *cmd, char **env)
 
 	if (build_in(cmd, env))
 	{
-		exec = parse_cmd(cmd, env);
+		exec = path_cmd(cmd, env);
 		if (exec != NULL)
 		{
 			father = fork();
@@ -177,8 +224,42 @@ int		execute(char *cmd, char **env)
 			}
 			free_exec(exec);
 		}
+		else
+		{
+			ft_putstr(cmd);
+			ft_putstr(": command not found\n");
+		}
 	}
+	ft_memdel((void**)&cmd);
 	return (0);
+}
+
+void	tr_cmd(char **cmd, char **env)
+{
+	long	i;
+	char	*text;
+	char	*tmp;
+
+	text = NULL;
+	if (!cmd)
+		return;
+	i = 0;
+	while (cmd[0][i])
+	{
+		// 
+		if (!text)
+		{
+			text = ft_strjoin("", &cmd[0][i]);
+		}
+		else
+		{
+			tmp = text;
+			text = ft_strjoin(text, &cmd[0][i]);
+			ft_strdel(&tmp);
+		}
+		i++;
+	}
+	env++;
 }
 
 int	main(int argc, char **argv, char **environ)
@@ -190,12 +271,13 @@ int	main(int argc, char **argv, char **environ)
 		ft_putstr(">$ ");
 		if (!get_next_line(0, &cmd))
 		{
-			ft_putchar('\n');
+			ft_putchar('\n');	//If ctrl + D exit
 			exit(0);
 		}
+		tr_cmd(&cmd, environ);
 		execute(cmd, environ);
-		argc++;
-		argv++;
+		argc++;					//Remove
+		argv++;					//Remove
 	}
 	return (0);
 }
