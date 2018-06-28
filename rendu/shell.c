@@ -274,8 +274,11 @@ int	main(int argc, char **argv, char **environ)
 			ft_putchar('\n');	//If ctrl + D exit
 			exit(0);
 		}
-		tr_cmd(&cmd, environ);
-		execute(cmd, environ);
+		if (ft_strlen(cmd))
+		{
+			tr_cmd(&cmd, environ);
+			execute(cmd, environ);
+		}
 		argc++;					//Remove
 		argv++;					//Remove
 	}
